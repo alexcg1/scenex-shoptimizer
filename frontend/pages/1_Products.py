@@ -1,10 +1,12 @@
 import requests
 import streamlit as st
+# from helper import FASTAPI_URL
+from helper import get_settings
 from rich.console import Console
 
-from helper import FASTAPI_URL
-
 console = Console(tab_size=2)
+
+settings = get_settings()
 
 
 st.set_page_config(page_title="Alt Texter: Add alt texts to your images", layout="wide")
@@ -20,7 +22,9 @@ get_products_button = st.button("Get products")
 if get_products_button:
     with placeholder.container():
         with st.status("Retrieving products"):
-            products_response = requests.get(f"{FASTAPI_URL}/woocommerce/products")
+            products_response = requests.get(
+                f"{settings['shoptimizer_backend_url']}/woocommerce/products"
+            )
 
     placeholder.empty()
     if products_response.status_code == 200:

@@ -2,7 +2,9 @@ import requests
 import streamlit as st
 from rich.console import Console
 
-from helper import FASTAPI_URL
+from helper import get_settings
+
+settings = get_settings()
 
 console = Console(tab_size=2)
 
