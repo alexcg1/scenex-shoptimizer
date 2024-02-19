@@ -18,18 +18,12 @@ SHOPIFY_SHOP_NAME = os.environ.get("SHOPIFY_SHOP_NAME", "")
 SHOPIFY_ACCESS_TOKEN = os.environ.get("SHOPIFY_ACCESS_TOKEN", "")
 
 
-# Ugh, none of these seem to get persisted
-
-st.title("Configure Shoptimize")
+st.title("Configure Shoptimizer")
 st.markdown(
     "API keys, URLs, and more. For optimization settings, check the 'Optimize Products' page."
 )
 
 PLATFORMS = ["WooCommerce", "Shopify"]
-
-# if "scenex_api_key" not in st.session_state:
-# st.session_state["scenex_api_key"] = ""
-
 
 scenex_api_key = st.text_input(
     label="SceneXplain API key",
