@@ -7,8 +7,6 @@ ARG SCENEX_API_KEY
 #RUN apt-get update && \
 #apt-get install -y git
 
-#RUN git clone git@github.com:jina-ai/scenex-ghost-blog-alt-tagger.git /usr/src/app
-
 # Set the working directory in the container
 WORKDIR /usr/src/app
 
@@ -24,7 +22,5 @@ ENV WOOCOMMERCE_KEY=${WOOCOMMERCE_KEY}
 ENV WOOCOMMERCE_SECRET=${WOOCOMMERCE_KEY}
 ENV SCENEX_API_KEY=${SCENEX_API_KEY}
 
-EXPOSE 8000
-
 # Run script.py when the container launches
-CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["streamlit", "run", "ui.py"]
