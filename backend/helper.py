@@ -412,7 +412,7 @@ class WooCommerceTagger(AltTexter):
         woocommerce_consumer_key: str,
         woocommerce_consumer_secret: str,
         scenex_api_key: str,
-        scenex_url: str = SCENEX_URL,
+        scenex_url: str = settings["scenex_url"],
         write_desc: bool = False,
         overwrite_desc: bool = False,
     ):
