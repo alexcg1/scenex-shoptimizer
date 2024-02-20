@@ -21,6 +21,9 @@ log = logging.getLogger("rich")
 
 settings = get_settings()
 
+console.print("==== Settings ====")
+console.print(settings)
+
 handler = WooCommerceTagger(
     scenex_api_key=settings["scenex_api_key"],
     url=settings["woocommerce_url"],
