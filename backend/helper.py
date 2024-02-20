@@ -605,7 +605,7 @@ class ShopifyHandler(AltTexter):
         shopify_shop_name: str,
         shopify_access_token: str,
         scenex_api_key: str,
-        scenex_url: str = SCENEX_URL,
+        scenex_url: str = settings["scenex_url"],
     ):
         super().__init__(self, scenex_url=scenex_url, scenex_api_key=scenex_api_key)
         self.shopify_access_token = shopify_access_token
