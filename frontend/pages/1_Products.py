@@ -46,15 +46,15 @@ if get_products_button:
             if images_without_alts > 0:
                 products_lacking_alts += 1
 
-            st.markdown("#### Summary")
-            if products_lacking_alts:
-                st.markdown(
-                    f":warning: {products_lacking_alts} of your {len(products['data'])} products lack some or all alt texts for images. This is bad for SEO."
-                )
-            else:
-                st.markdown(
-                    ":partying_face: Congratulations! All your product images have alt texts!"
-                )
+            # st.markdown("#### Summary")
+            # if products_lacking_alts:
+            # st.markdown(
+            # f":warning: {products_lacking_alts} of your {len(products['data'])} products lack some or all alt texts for images. This is bad for SEO."
+            # )
+            # else:
+            # st.markdown(
+            # ":partying_face: Congratulations! All your product images have alt texts!"
+            # )
 
             st.divider()
 
