@@ -1,0 +1,20 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./backend
+    ports:
+      - "8000:8000"
+
+  frontend:
+    build:
+      context: ./frontend
+    environment:
+      - SCENEX_API_KEY=${SCENEX_API_KEY}
+      - SHOPTIMIZER_BACKEND_URL=${SHOPTIMIZER_BACKEND_URL}
+      - WOOCOMMERCE_URL=${WOOCOMMERCE_URL}
+      - WOOCOMMERCE_KEY=${WOOCOMMERCE_KEY}
+      - WOOCOMMERCE_SECRET=${WOOCOMMERCE_SECRET}
+    ports:
+      - "8501:8501"
