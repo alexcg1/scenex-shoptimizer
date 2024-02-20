@@ -4,6 +4,9 @@ import os
 def get_settings():
     settings = {
         "shoptimizer_backend_url": os.environ.get("SHOPTIMIZER_BACKEND_URL", ""),
+        "scenex_url": os.environ.get(
+            "SCENEX_URL", "https://api.scenex.jina.ai/v1/describe"
+        ),
         "scenex_api_key": os.environ.get("SCENEX_API_KEY", ""),
         "woocommerce_url": os.environ.get("WOOCOMMERCE_URL", ""),
         "woocommerce_key": os.environ.get("WOOCOMMERCE_KEY", ""),
