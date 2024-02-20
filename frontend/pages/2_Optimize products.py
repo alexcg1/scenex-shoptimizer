@@ -1,4 +1,7 @@
 import requests
+import logging
+from rich.logging import RichHandler
+from urllib.parse import urlencode
 import streamlit as st
 from rich.console import Console
 
@@ -6,10 +9,17 @@ from helper import get_settings
 
 settings = get_settings()
 
+# set up logging
+FORMAT = "%(message)s"
+logging.basicConfig(
+    level="INFO", format=FORMAT, datefmt="[%X]", handlers=[RichHandler()]
+)
+log = logging.getLogger("rich")
+
 console = Console(tab_size=2)
 
 
-st.set_page_config(page_title="Alt Texter: Add alt texts to your images", layout="wide")
+st.set_page_config(page_title="Shoptimizer", layout="wide")
 
 st.title("Optimize Products")
 st.markdown(
@@ -40,6 +50,11 @@ with options_expander:
         options["overwrite_desc"] = st.checkbox(
             label="Overwrite existing product description"
         )
+        options["desc_fields"] = st.multiselect(
+            label="Description fields",
+            options=["description", "short_description"],
+            default=["description", "short_description"],
+        )
 
     with col3:
         st.markdown("#### Misc")
@@ -56,7 +71,9 @@ with options_expander:
 
 if optimize_button:
     with st.spinner("Getting products"):
-        products_response = requests.get(f"{FASTAPI_URL}/woocommerce/products")
+        products_response = requests.get(
+            f"{settings['shoptimizer_backend_url']}/woocommerce/products"
+        )
 
     if products_response.status_code == 200:
         products = products_response.json()
@@ -71,7 +88,7 @@ if optimize_button:
 
             updated_product = {}
             if options["generate_alts"]:
-                url = f"{FASTAPI_URL}/woocommerce/products/{product['id']}/alts/create"
+                url = f"{settings['shoptimizer_backend_url']}/woocommerce/products/{product['id']}/alts/create"
                 if options["overwrite_alts"]:
                     url = url + "?overwrite=true"
 
@@ -83,12 +100,15 @@ if optimize_button:
                     updated_product.update(alts_response_dict["data"])
 
             if options["generate_desc"]:
-                url = f"{FASTAPI_URL}/woocommerce/products/{product['id']}/desc/create"
+                fields_string = urlencode(
+                    {"fields": options["desc_fields"]}, doseq=True
+                )
+                url = f"{settings['shoptimizer_backend_url']}/woocommerce/products/{product['id']}/desc/create?{fields_string}"
                 if options["overwrite_desc"]:
-                    url = url + "?overwrite=true"
+                    url = url + "&overwrite=true"
 
                 # st.write("Updating descriptions")
-                st.markdown("Updating description")
+                st.markdown("Updating descriptions")
                 desc_response = requests.get(url)
                 desc_response_dict = desc_response.json()
 
@@ -121,11 +141,22 @@ if optimize_button:
                     desc_field = product["description"]
                     desc_text_color = "grey"
 
+                if "short_description" in updated_product:
+                    short_desc_field = updated_product["short_description"]
+                    short_desc_text_color = "green"
+                else:
+                    short_desc_field = product["short_description"]
+                    short_desc_text_color = "grey"
+
                 feat_img_col, detail_col = st.columns([1, 7])
                 with feat_img_col:
                     st.image(img_list[0]["src"])
                 with detail_col:
+                    st.markdown("###### Description")
                     st.markdown(f":{desc_text_color}[{desc_field}]")
+
+                    st.markdown("###### Short description")
+                    st.markdown(f":{short_desc_text_color}[{short_desc_field}]")
 
                 st.markdown("###### Alt texts")
                 for image in img_list:
@@ -142,7 +173,7 @@ if optimize_button:
                     "images" in updated_product.keys()
                     or "description" in updated_product.keys()
                 ):
-                    url = f"{FASTAPI_URL}/woocommerce/products/{product['id']}/update"
+                    url = f"{settings['shoptimizer_backend_url']}/woocommerce/products/{product['id']}/update"
                     st.write(f"Updating {product['name']}")
                     update_response = requests.put(url, json=updated_product)
 
