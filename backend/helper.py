@@ -1,6 +1,8 @@
 import base64
+import os
 import json
 import logging
+
 # import tempfile
 # import os
 import time
@@ -8,8 +10,10 @@ from difflib import unified_diff
 
 import jwt
 import requests
+
 # import shopify
 from bs4 import BeautifulSoup
+
 # from lxml.html import diff, fromstring, tostring
 from requests.auth import HTTPBasicAuth
 from rich.console import Console
@@ -18,7 +22,25 @@ from woocommerce import API
 
 console = Console(tab_size=2)
 
-FASTAPI_URL = "http://127.0.0.1:8000"
+
+def get_settings():
+    settings = {
+        # "shoptimizer_backend_url": os.environ.get("SHOPTIMIZER_BACKEND_URL", ""),
+        "scenex_url": os.environ.get(
+            "SCENEX_URL", "https://api.scenex.jina.ai/v1/describe"
+        ),
+        "scenex_api_key": os.environ.get("SCENEX_API_KEY", ""),
+        "woocommerce_url": os.environ.get("WOOCOMMERCE_URL", ""),
+        "woocommerce_key": os.environ.get("WOOCOMMERCE_KEY", ""),
+        "woocommerce_secret": os.environ.get("WOOCOMMERCE_SECRET", ""),
+        "shopify_shop_name": os.environ.get("SHOPIFY_SHOP_NAME", ""),
+        "shopify_access_token": os.environ.get("SHOPIFY_ACCESS_TOKEN", ""),
+    }
+
+    return settings
+
+
+settings = get_settings()
 
 # set up logging
 FORMAT = "%(message)s"
@@ -27,15 +49,13 @@ logging.basicConfig(
 )
 log = logging.getLogger("rich")
 
-SCENEX_URL = "https://api.scenex.jina.ai/v1/describe"
-
 
 class AltTexter:
     def __init__(
         self,
         url: str,
         scenex_api_key: str,
-        scenex_url: str = SCENEX_URL,
+        scenex_url: str = settings["scenex_url"],
         language: str = "en",
         overwrite_alts: bool = False,
     ):
@@ -466,32 +486,44 @@ class WooCommerceTagger(AltTexter):
 
         return output
 
-    def add_desc(self, product, overwrite: bool = False, max_length: int = 10000):
-        log.info(f"Writing description for {product['name']}")
+    def add_desc(
+        self,
+        product,
+        overwrite: bool = False,
+        max_length: int = 10000,
+        fields=["description", "short_description"],
+    ):
         output = {}
+        for field in fields:
+            log.info(f"Writing {field} for {product['name']}")
 
-        if product["description"] and not overwrite:
-            return {}
+            if product[field] and not overwrite:
+                log.info(f"{field} already exists")
+                continue
 
-        else:
-            image_url = product["images"][0]["src"]
-            data = {
-                "data": [
-                    {
-                        "question": Prompts.write_desc,
-                        "image": image_url,
-                        "languages": [self.language],
-                        "features": ["question_answer"],
-                        "output_length": max_length,
-                    }
-                ]
-            }
+            else:
+                if field == "short_description":
+                    max_length = 125
 
-            response = self.send_scenex_request(data)
-            output["description"] = response["result"][0]["text"]
-            output["id"] = product["id"]
+                image_url = product["images"][0]["src"]
+                data = {
+                    "data": [
+                        {
+                            "question": Prompts.write_desc,
+                            "image": image_url,
+                            "languages": [self.language],
+                            "features": ["question_answer"],
+                            "output_length": max_length,
+                        }
+                    ]
+                }
 
-            return output
+                response = self.send_scenex_request(data)
+                output[field] = response["result"][0]["text"]
+
+        output["id"] = product["id"]
+
+        return output
 
     def add_alts(self, product, overwrite: bool = False):
         """

@@ -1,18 +1,31 @@
+from rich.logging import RichHandler
 import os
+import logging
 
-from creds import SCENEX_API_KEY, WooCommerceCreds
+
+# from creds import SCENEX_API_KEY, WooCommerceCreds
 from fastapi import FastAPI
-from helper import WooCommerceTagger
+from helper import WooCommerceTagger, get_settings
 from rich.console import Console
 
 console = Console()
 app = FastAPI()
 
+# set up logging
+FORMAT = "%(message)s"
+logging.basicConfig(
+    level="INFO", format=FORMAT, datefmt="[%X]", handlers=[RichHandler()]
+)
+log = logging.getLogger("rich")
+
+
+settings = get_settings()
+
 handler = WooCommerceTagger(
-    scenex_api_key=SCENEX_API_KEY,
-    url=WooCommerceCreds.WORDPRESS_URL,
-    woocommerce_consumer_key=WooCommerceCreds.WOOCOMMERCE_KEY,
-    woocommerce_consumer_secret=WooCommerceCreds.WOOCOMMERCE_SECRET,
+    scenex_api_key=settings["scenex_api_key"],
+    url=settings["woocommerce_url"],
+    woocommerce_consumer_key=settings["woocommerce_key"],
+    woocommerce_consumer_secret=settings["woocommerce_secret"],
 )
 
 
@@ -51,9 +64,15 @@ class WooCommerce:
         }
 
     @app.get("/woocommerce/products/{product_id}/desc/create")
-    def create_description(product_id: str, overwrite: bool = False):
+    def create_description(
+        product_id: str,
+        overwrite: bool = False,
+        fields: list = ["description", "short_description"],
+    ):
         product = handler.get_product(product_id)
-        desc_data = handler.add_desc(product=product, overwrite=overwrite)
+        desc_data = handler.add_desc(
+            product=product, overwrite=overwrite, fields=fields
+        )
 
         return {"data": desc_data}
 
