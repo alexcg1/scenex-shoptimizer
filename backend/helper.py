@@ -430,10 +430,21 @@ class WooCommerceTagger(AltTexter):
         """
         Get list of all WooCommerce products.
         """
-        log.info("Getting WooCommerce products")
-        products = self.wcapi.get("products").json()
+        all_products = []
+        page = 1
+        # products = self.wcapi.get("products").json()
 
-        return products
+        while True:
+            log.info(f"Getting WooCommerce products - page {page}")
+            response = self.wcapi.get(
+                "products", params={"per_page": 100, "page": page}
+            ).json()
+            if not response:
+                break  # Break the loop if no more products are found
+            all_products.extend(response)
+            page += 1
+
+        return all_products
 
     def get_product(self, product_id):
         product = self.wcapi.get(f"products/{product_id}").json()
