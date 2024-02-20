@@ -1,5 +1,6 @@
 import requests
 import streamlit as st
+
 # from helper import FASTAPI_URL
 from helper import get_settings
 from rich.console import Console
@@ -9,7 +10,7 @@ console = Console(tab_size=2)
 settings = get_settings()
 
 
-st.set_page_config(page_title="Alt Texter: Add alt texts to your images", layout="wide")
+st.set_page_config(page_title="Shoptimizer", layout="wide")
 st.title("Your Products")
 st.markdown("Check your product descriptions and alt texts")
 
