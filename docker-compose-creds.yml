@@ -1,0 +1,34 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./backend
+    environment:
+      - SCENEX_API_KEY=fuHUDVCTWJAAGQwMHWSV:9b2d61d69d31ee35d51e56a39cddc28e7622dbd8652512a781d95b2a9783683f
+      - SHOPTIMIZER_BACKEND_URL=http://backend:8000
+      - WOOCOMMERCE_URL=http://ec2-16-171-139-144.eu-north-1.compute.amazonaws.com
+      - WOOCOMMERCE_KEY=ck_2537510302eb2872d85ddd130f45bbc125e47c06
+      - WOOCOMMERCE_SECRET=cs_4147d7791c79f3c2d7f9bd2685ad2cb85875e701
+    ports:
+      - "8000:8000"
+    networks:
+      - shoptimizer_net
+
+  frontend:
+    build:
+      context: ./frontend
+    environment:
+      - SCENEX_API_KEY=fuHUDVCTWJAAGQwMHWSV:9b2d61d69d31ee35d51e56a39cddc28e7622dbd8652512a781d95b2a9783683f
+      - SHOPTIMIZER_BACKEND_URL=http://backend:8000
+      - WOOCOMMERCE_URL=http://ec2-16-171-139-144.eu-north-1.compute.amazonaws.com
+      - WOOCOMMERCE_KEY=ck_2537510302eb2872d85ddd130f45bbc125e47c06
+      - WOOCOMMERCE_SECRET=cs_4147d7791c79f3c2d7f9bd2685ad2cb85875e701
+    ports:
+      - "8501:8501"
+    networks:
+      - shoptimizer_net
+
+networks:
+  shoptimizer_net:
+    driver: bridge
